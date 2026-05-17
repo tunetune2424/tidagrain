@@ -9,8 +9,18 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        bg: "#F7F4EF",
+        "t-text": "#1E1814",
+        accent: "#C4A882",
+        border: "#E5E1DC",
+        muted: "#8B7B6A",
+        muted2: "#6B6157",
+      },
+      fontFamily: {
+        "serif-en": ["Cormorant Garamond", "serif"],
+        "serif-jp": ["Noto Serif JP", "serif"],
+        sans: ["Noto Sans JP", "sans-serif"],
+        ui: ["Inter", "sans-serif"],
       },
     },
   },
