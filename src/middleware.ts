@@ -34,8 +34,11 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // 未ログインで /admin/login 以外にアクセス → ログインページへ
+  // callbackUrl に元の URL を渡してログイン後に戻れるようにする
   if (!user && pathname !== '/admin/login') {
-    return NextResponse.redirect(new URL('/admin/login', request.url))
+    const loginUrl = new URL('/admin/login', request.url)
+    loginUrl.searchParams.set('callbackUrl', pathname)
+    return NextResponse.redirect(loginUrl)
   }
 
   // ログイン済みで /admin/login にアクセス → ダッシュボードへ
