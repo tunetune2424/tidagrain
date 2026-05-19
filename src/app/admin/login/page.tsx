@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase-client'
 
-export default function AdminLoginPage() {
+// useSearchParams は Suspense で囲む必要があるため、フォーム部分を別コンポーネントに分離
+function LoginForm() {
   const router = useRouter()
   // middleware が付与した callbackUrl を取得（なければ /admin にフォールバック）
   const searchParams = useSearchParams()
@@ -101,5 +102,13 @@ export default function AdminLoginPage() {
       </div>
     </div>
   )
+}
 
+// Suspense で囲むことで useSearchParams のビルドエラーを回避
+export default function AdminLoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
+  )
 }
