@@ -1,0 +1,82 @@
+'use server'
+// 'use server' をつけると「この関数はサーバー側で実行する」という意味になる
+// ブラウザからボタンを押したとき、この関数がサーバーで動いて Supabase を書き換える
+
+import { revalidatePath } from 'next/cache'
+// revalidatePath: 指定したページのキャッシュを破棄して最新データで再表示させる
+
+import { redirect } from 'next/navigation'
+// redirect: 別のページに飛ばす（ログアウト後にログインページへ）
+
+import { cookies } from 'next/headers'
+// cookies: サーバー側でブラウザのクッキーを読み書きする
+
+import { createServerClient } from '@supabase/ssr'
+// createServerClient: サーバー側（Next.js）で Supabase を使うための関数
+
+import { supabaseAdmin } from '@/lib/supabase'
+// supabaseAdmin: サービスロールキーを使った管理者権限の Supabase クライアント
+// RLS（行レベルセキュリティ）を無視して全データにアクセスできる
+
+// 商品の公開/非公開を切り替える
+export async function toggleProductActive(formData: FormData) {
+  // フォームから id（どの商品か）と isActive（今の状態）を取り出す
+  const id = formData.get('id') as string
+  const isActive = formData.get('isActive') === 'true'
+
+  // 今が true なら false に、false なら true に反転して更新
+  await supabaseAdmin.from('products').update({ is_active: !isActive }).eq('id', id)
+
+  // /admin ページのキャッシュを破棄して最新の一覧を表示させる
+  revalidatePath('/admin')
+}
+
+// 商品を削除する
+export async function deleteProduct(formData: FormData) {
+  const id = formData.get('id') as string
+
+  // 指定した id の商品を products テーブルから削除
+  await supabaseAdmin.from('products').delete().eq('id', id)
+
+  revalidatePath('/admin')
+}
+
+// 注文のステータスを更新する（未払い → 支払済 → 発送済 → 配達完了）
+export async function updateOrderStatus(formData: FormData) {
+  const id = formData.get('id') as string
+  const status = formData.get('status') as string
+
+  // 指定した id の注文ステータスを書き換える
+  await supabaseAdmin.from('orders').update({ status }).eq('id', id)
+
+  revalidatePath('/admin')
+}
+
+// ログアウト処理
+export async function signOut() {
+  // サーバー側でクッキーを操作するために取得
+  const cookieStore = await cookies()
+
+  // ログアウトには通常の supabase クライアント（anon key）を使う
+  // クッキーに保存されたセッション情報を読み書きするため createServerClient を使う
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll() },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) =>
+            cookieStore.set(name, value, options)
+          )
+        },
+      },
+    }
+  )
+
+  // Supabase のセッションを削除（ログアウト）
+  await supabase.auth.signOut()
+
+  // ログインページへリダイレクト
+  redirect('/admin/login')
+}
