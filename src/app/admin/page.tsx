@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 // Server Component: このファイルは「async function」なので自動的にサーバー側で実行される
 // サーバー側で Supabase からデータを取得してから HTML を生成して返す
 
