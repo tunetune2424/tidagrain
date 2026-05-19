@@ -4,12 +4,13 @@
 // Stripe の決済完了後にリダイレクトされる
 // URL に ?session_id=... が付いてくる（将来 Webhook と照合するために使う）
 
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useCart } from '@/contexts/CartContext'
 
-export default function CompletePage() {
+// useSearchParams は Suspense で囲む必要があるため中身を別コンポーネントに分離
+function CompleteContent() {
   const searchParams = useSearchParams()
   // Stripe から渡されるセッションID（将来の注文照合・Webhook処理に使う）
   const sessionId = searchParams.get('session_id')
@@ -145,5 +146,14 @@ export default function CompletePage() {
       `}</style>
 
     </div>
+  )
+}
+
+// Suspense で囲むことで useSearchParams のビルドエラーを回避
+export default function CompletePage() {
+  return (
+    <Suspense>
+      <CompleteContent />
+    </Suspense>
   )
 }
