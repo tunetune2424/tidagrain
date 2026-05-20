@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic'
 import { supabaseAdmin } from '@/lib/supabase'
 import type { Product, Order } from '@/types'
 import { toggleProductActive, deleteProduct, updateOrderStatus, signOut } from './actions'
+import { SubmitButton } from './SubmitButton'
 
 // カテゴリの英語キーを日本語表示に変換するマップ
 const CATEGORY_LABEL: Record<string, string> = {
@@ -80,8 +81,8 @@ export default async function AdminPage() {
                           {/* hidden input でどの商品か・今の状態をサーバーに送る */}
                           <input type="hidden" name="id" value={product.id} />
                           <input type="hidden" name="isActive" value={String(product.is_active)} />
-                          <button type="submit" style={{
-                            fontSize: '11px', padding: '4px 12px', cursor: 'pointer',
+                          <SubmitButton style={{
+                            fontSize: '11px', padding: '4px 12px',
                             border: '1px solid',
                             // 公開中は黒背景・非公開はグレー枠
                             borderColor: product.is_active ? '#1E1814' : '#E5E1DC',
@@ -89,7 +90,7 @@ export default async function AdminPage() {
                             color: product.is_active ? '#F7F4EF' : '#8B7B6A',
                           }}>
                             {product.is_active ? '公開中' : '非公開'}
-                          </button>
+                          </SubmitButton>
                         </form>
                       </td>
 
@@ -97,12 +98,12 @@ export default async function AdminPage() {
                       <td style={tdStyle}>
                         <form action={deleteProduct}>
                           <input type="hidden" name="id" value={product.id} />
-                          <button type="submit" style={{
-                            fontSize: '11px', padding: '4px 12px', cursor: 'pointer',
+                          <SubmitButton style={{
+                            fontSize: '11px', padding: '4px 12px',
                             border: '1px solid #E5E1DC', background: 'transparent', color: '#c0392b',
                           }}>
                             削除
-                          </button>
+                          </SubmitButton>
                         </form>
                       </td>
                     </tr>
@@ -157,12 +158,12 @@ export default async function AdminPage() {
                             <option value="shipped">発送済</option>
                             <option value="delivered">配達完了</option>
                           </select>
-                          <button type="submit" style={{
-                            fontSize: '11px', padding: '4px 12px', cursor: 'pointer',
+                          <SubmitButton style={{
+                            fontSize: '11px', padding: '4px 12px',
                             border: '1px solid #E5E1DC', background: 'transparent', color: '#1E1814',
                           }}>
                             更新
-                          </button>
+                          </SubmitButton>
                         </form>
                       </td>
                     </tr>
