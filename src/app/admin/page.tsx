@@ -20,7 +20,7 @@ export default async function AdminPage() {
   // 商品一覧と注文一覧を同時に取得（Promise.all で並列実行して速くする）
   // 作成日の新しい順で取得
   const [{ data: products }, { data: orders }] = await Promise.all([
-    supabaseAdmin.from('products').select('*').order('created_at', { ascending: false }),
+    supabaseAdmin.from('products').select('*').order('created_at', { ascending: false }).order('name', { ascending: true }),
     supabaseAdmin.from('orders').select('*').order('created_at', { ascending: false }),
   ])
 
