@@ -12,7 +12,7 @@ import { useCart } from '@/contexts/CartContext'
 const CATEGORY_LABEL: Record<string, string> = {
   print: 'フォトプリント',
   postcard: 'ポストカード',
-  goods: 'トートバッグ',
+  goods: 'グッズ',
   apparel: 'アパレル',
 }
 

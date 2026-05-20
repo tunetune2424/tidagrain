@@ -11,7 +11,7 @@ import type { Product } from '@/types'
 const CATEGORY_LABEL: Record<string, string> = {
   print: 'フォトプリント',
   postcard: 'ポストカード',
-  goods: 'トートバッグ',
+  goods: 'グッズ',
   apparel: 'アパレル',
 }
 
@@ -20,7 +20,7 @@ const CATEGORIES = [
   { key: 'all', label: 'すべて' },
   { key: 'print', label: 'フォトプリント' },
   { key: 'postcard', label: 'ポストカード' },
-  { key: 'goods', label: 'トートバッグ' },
+  { key: 'goods', label: 'グッズ' },
   { key: 'apparel', label: 'アパレル' },
 ]
 
