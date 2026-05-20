@@ -14,6 +14,7 @@ export default async function ShopPage() {
     .select('*')
     .eq('is_active', true)
     .order('created_at', { ascending: false })
+    .order('name', { ascending: true })
 
   // 取得したデータを ShopClient に渡す
   // products が null のときは空配列にしてエラーを防ぐ
