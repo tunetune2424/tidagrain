@@ -1,117 +1,19 @@
-'use client'
+// Server Component：サーバー側で Supabase からデータを取得し ShopClient に渡す
+// フィルター・並び替えの UI は ShopClient.tsx（Client Component）で管理している
 
-// ショップ一覧ページ（/shop）
-// カテゴリフィルター・並び替えを持つ商品グリッド
+import { supabaseAdmin } from '@/lib/supabase'
+import type { Product } from '@/types'
+import ShopClient from './ShopClient'
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { PRODUCTS } from '@/lib/data'
+export default async function ShopPage() {
+  // 公開中（is_active = true）の商品を新着順で全件取得
+  const { data: products } = await supabaseAdmin
+    .from('products')
+    .select('*')
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
 
-// フィルターに使うカテゴリ一覧（「すべて」は全商品を表示する特殊値）
-const CATEGORIES = ['すべて', 'フォトプリント', 'ポストカード', 'トートバッグ', 'アパレル']
-
-export default function ShopPage() {
-  // アクティブなカテゴリ（デフォルトは「すべて」）
-  const [activeCategory, setActiveCategory] = useState('すべて')
-  // 並び替えの選択状態（デフォルトは「新着順」）
-  const [sort, setSort] = useState('新着順')
-
-  // カテゴリで絞り込み → 並び替えの順で処理する
-  const filtered = PRODUCTS
-    .filter((p) => activeCategory === 'すべて' || p.category === activeCategory)
-    .sort((a, b) => {
-      if (sort === '価格が安い順') return a.price - b.price  // 昇順
-      if (sort === '価格が高い順') return b.price - a.price  // 降順
-      return 0  // 「新着順」は PRODUCTS の並び順をそのまま使う
-    })
-
-  return (
-    <>
-      {/* ページヘッダー：パンくずリスト + タイトル */}
-      <section className="border-b border-border px-8 pt-12 pb-10">
-        <div className="max-w-[1100px] mx-auto">
-          <p className="text-[11px] text-muted tracking-[0.1em] mb-[10px]">
-            <Link href="/" className="hover:opacity-60 transition-opacity">home</Link>
-            {' '}&nbsp;/{' '}&nbsp;shop
-          </p>
-          <h1 className="font-serif-en text-[40px] font-normal">shop</h1>
-        </div>
-      </section>
-
-      {/* フィルター・並び替えバー */}
-      <section className="border-b border-border px-8 py-5">
-        <div className="max-w-[1100px] mx-auto flex items-center justify-between">
-          {/* カテゴリボタン群：アクティブなものだけスタイルが変わる */}
-          <div className="flex gap-2">
-            {CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setActiveCategory(cat)}
-                className={`text-[12px] px-4 py-[6px] border transition-colors duration-200 ${activeCategory === cat
-                  ? 'border-t-text text-t-text'
-                  : 'border-border text-muted2 hover:border-t-text hover:text-t-text'
-                  }`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* 並び替えセレクト */}
-          <div className="flex items-center gap-2">
-            <span className="text-[12px] text-muted">並び替え：</span>
-            <select
-              value={sort}
-              onChange={(e) => setSort(e.target.value)}
-              className="text-[12px] border border-border bg-transparent px-3 py-[6px] text-t-text outline-none font-sans"
-            >
-              <option>新着順</option>
-              <option>価格が安い順</option>
-              <option>価格が高い順</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      {/* 商品グリッド */}
-      <section className="max-w-[1100px] mx-auto px-8 pt-12 pb-20">
-        {/* 絞り込み後の件数表示 */}
-        <p className="text-[12px] text-muted mb-8">{filtered.length}件</p>
-
-        <div className="grid grid-cols-3 gap-6">
-          {filtered.map((product) => (
-            // 商品カード：クリックで詳細ページへ遷移
-            <Link
-              key={product.id}
-              href={`/shop/${product.id}`}
-              className="group border border-border overflow-hidden block transition-shadow duration-300 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)]"
-            >
-              {/* 商品画像：ホバーで 1.04 倍にゆっくり拡大（duration-1400ms） */}
-              <div className="overflow-hidden h-[280px] bg-[#ede9e3]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={product.image}
-                  alt={product.alt}
-                  className="film w-full h-full object-cover transition-transform duration-[1400ms] ease-in-out group-hover:scale-[1.04]"
-                />
-              </div>
-              <div className="px-5 py-[18px]">
-                <p className="text-[11px] text-muted mb-[5px]">{product.category}</p>
-                <h4 className="text-[14px] font-normal mb-1">{product.name}</h4>
-                <p className="text-[11px] text-muted mb-[10px]">{product.sub}</p>
-                <p className="text-[13px]">¥{product.price.toLocaleString()}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {/* TODO: 「もっと見る」はページネーションまたは無限スクロールに差し替え予定 */}
-        <div className="text-center mt-14">
-          <button className="border border-border px-12 py-[14px] text-[12px] tracking-[0.1em] bg-transparent text-t-text transition-all duration-300 hover:bg-t-text hover:text-bg">
-            もっと見る
-          </button>
-        </div>
-      </section>
-    </>
-  )
+  // 取得したデータを ShopClient に渡す
+  // products が null のときは空配列にしてエラーを防ぐ
+  return <ShopClient products={(products as Product[]) ?? []} />
 }
