@@ -27,8 +27,9 @@ export async function toggleProductActive(formData: FormData) {
   // 今が true なら false に、false なら true に反転して更新
   await supabaseAdmin.from('products').update({ is_active: !isActive }).eq('id', id)
 
-  // /admin ページのキャッシュを破棄して最新の一覧を表示させる
+  // /admin と /shop のキャッシュを破棄して最新データを表示させる
   revalidatePath('/admin')
+  revalidatePath('/shop')
 }
 
 // 商品を削除する
@@ -39,6 +40,7 @@ export async function deleteProduct(formData: FormData) {
   await supabaseAdmin.from('products').delete().eq('id', id)
 
   revalidatePath('/admin')
+  revalidatePath('/shop')
 }
 
 // 注文のステータスを更新する（未払い → 支払済 → 発送済 → 配達完了）
