@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic'
+
 // Server Component：サーバー側で Supabase からデータを取得し ShopClient に渡す
 // フィルター・並び替えの UI は ShopClient.tsx（Client Component）で管理している
 
