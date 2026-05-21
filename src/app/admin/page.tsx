@@ -5,8 +5,9 @@ export const dynamic = 'force-dynamic'
 
 import { supabaseAdmin } from '@/lib/supabase'
 import type { Product, Order } from '@/types'
-import { toggleProductActive, toggleProductFeatured, deleteProduct, updateOrderStatus, signOut, addProduct } from './actions'
+import { toggleProductActive, toggleProductFeatured, deleteProduct, updateOrderStatus, signOut } from './actions'
 import { SubmitButton } from './SubmitButton'
+import { AddProductForm } from './AddProductForm'
 
 // カテゴリの英語キーを日本語表示に変換するマップ
 const CATEGORY_LABEL: Record<string, string> = {
@@ -134,33 +135,7 @@ export default async function AdminPage() {
 
         
 
-        {/* ── 商品追加フォーム ── */}
-        <div style={{ borderTop: '1px solid #E5E1DC', padding: '24px 20px' }}>
-          <p style={{ fontSize: '11px', color: '#8B7B6A', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '16px' }}>
-            新規商品を追加
-          </p>
-          <form action={addProduct} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-            <input name="name" placeholder="商品名" required style={inputStyle} />
-            <select name="category" required style={inputStyle}>
-              <option value="">カテゴリを選択</option>
-              <option value="print">フォトプリント</option>
-              <option value="postcard">ポストカード</option>
-              <option value="goods">グッズ</option>
-              <option value="apparel">アパレル</option>
-            </select>
-            <input name="price" type="number" placeholder="価格（円）" required style={inputStyle} />
-            <input name="image_url" placeholder="画像URL" required style={inputStyle} />
-            <textarea name="description" placeholder="商品説明（任意）" rows={2} style={{ ...inputStyle, gridColumn: '1 / -1', resize: 'vertical' }} />
-            <div style={{ gridColumn: '1 / -1', textAlign: 'right' }}>
-              <SubmitButton style={{
-                fontSize: '12px', padding: '8px 24px',
-                border: '1px solid #1E1814', background: '#1E1814', color: '#F7F4EF',
-              }}>
-                追加する
-              </SubmitButton>
-            </div>
-          </form>
-        </div>
+        <AddProductForm />
 
 
         {/* ── 注文管理セクション ── */}
@@ -237,10 +212,4 @@ const thStyle: React.CSSProperties = {
 // テーブルのデータセルに共通で適用するスタイル
 const tdStyle: React.CSSProperties = {
   padding: '14px 16px', color: '#1E1814', verticalAlign: 'middle',
-}
-
-const inputStyle: React.CSSProperties = {
-  fontSize: '13px', padding: '8px 12px',
-  border: '1px solid #E5E1DC', background: '#FFFFFF',
-  color: '#1E1814', outline: 'none', width: '100%', boxSizing: 'border-box',
 }
