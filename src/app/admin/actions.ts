@@ -43,6 +43,28 @@ export async function deleteProduct(formData: FormData) {
   revalidatePath('/shop')
 }
 
+// 商品を新規追加する
+export async function addProduct(formData: FormData) {
+  const name = formData.get('name') as string
+  const category = formData.get('category') as string
+  const price = Number(formData.get('price'))
+  const description = formData.get('description') as string
+  const image_url = formData.get('image_url') as string
+
+  await supabaseAdmin.from('products').insert({
+    name,
+    category,
+    price,
+    description: description || null,
+    image_url,
+    is_active: false,   // 追加直後は非公開にしておく
+  })
+
+  revalidatePath('/admin')
+  revalidatePath('/shop')
+}
+
+
 // 注文のステータスを更新する（未払い → 支払済 → 発送済 → 配達完了）
 export async function updateOrderStatus(formData: FormData) {
   const id = formData.get('id') as string
