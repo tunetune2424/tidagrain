@@ -28,6 +28,7 @@ export type Product = {
   image_url: string
   photo_id: string | null    // 元になったギャラリー写真のID（ギャラリーとの紐付け）
   is_active: boolean         // false にすると商品一覧から非表示になる
+  is_featured: boolean       // true のときトップページのおすすめに表示する
   created_at: string
   updated_at: string
 }

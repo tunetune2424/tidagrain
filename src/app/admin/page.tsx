@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic'
 
 import { supabaseAdmin } from '@/lib/supabase'
 import type { Product, Order } from '@/types'
-import { toggleProductActive, deleteProduct, updateOrderStatus, signOut, addProduct } from './actions'
+import { toggleProductActive, toggleProductFeatured, deleteProduct, updateOrderStatus, signOut, addProduct } from './actions'
 import { SubmitButton } from './SubmitButton'
 
 // カテゴリの英語キーを日本語表示に変換するマップ
@@ -64,6 +64,7 @@ export default async function AdminPage() {
                     <th style={thStyle}>商品名</th>
                     <th style={thStyle}>カテゴリ</th>
                     <th style={thStyle}>価格</th>
+                    <th style={thStyle}>おすすめ</th>
                     <th style={thStyle}>公開状態</th>
                     <th style={thStyle}>操作</th>
                   </tr>
@@ -74,6 +75,23 @@ export default async function AdminPage() {
                       <td style={tdStyle}>{product.name}</td>
                       <td style={tdStyle}>{CATEGORY_LABEL[product.category] ?? product.category}</td>
                       <td style={tdStyle}>¥{product.price.toLocaleString()}</td>
+
+                      {/* おすすめトグル：押すと toggleProductFeatured が呼ばれる */}
+                      <td style={tdStyle}>
+                        <form action={toggleProductFeatured}>
+                          <input type="hidden" name="id" value={product.id} />
+                          <input type="hidden" name="isFeatured" value={String(product.is_featured)} />
+                          <SubmitButton style={{
+                            fontSize: '11px', padding: '4px 12px',
+                            border: '1px solid',
+                            borderColor: product.is_featured ? '#c9a84c' : '#E5E1DC',
+                            background: product.is_featured ? '#fdf6e3' : 'transparent',
+                            color: product.is_featured ? '#c9a84c' : '#8B7B6A',
+                          }}>
+                            {product.is_featured ? '★ おすすめ' : '☆'}
+                          </SubmitButton>
+                        </form>
+                      </td>
 
                       {/* 公開/非公開トグルボタン：押すと toggleProductActive が呼ばれる */}
                       <td style={tdStyle}>

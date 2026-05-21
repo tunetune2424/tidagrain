@@ -43,6 +43,17 @@ export async function deleteProduct(formData: FormData) {
   revalidatePath('/shop')
 }
 
+// おすすめフラグを切り替える
+export async function toggleProductFeatured(formData: FormData) {
+  const id = formData.get('id') as string
+  const isFeatured = formData.get('isFeatured') === 'true'
+
+  await supabaseAdmin.from('products').update({ is_featured: !isFeatured }).eq('id', id)
+
+  revalidatePath('/admin')
+  revalidatePath('/')
+}
+
 // 商品を新規追加する
 export async function addProduct(formData: FormData) {
   const name = formData.get('name') as string

@@ -3,50 +3,25 @@
 
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
+import { supabaseAdmin } from '@/lib/supabase'
+import type { Product } from '@/types'
 
-// -----------------------------------------------
-// トップページに表示するおすすめ商品（3件固定）
-// 今後は Supabase から is_featured フラグで取得する予定
-// -----------------------------------------------
-const FEATURED_PRODUCTS = [
-  {
-    id: 1,
-    category: 'フォトプリント',
-    name: '光の向こう側 #01',
-    sub: 'A4 / フレーム付き',
-    price: '¥4,200（税込）',
-    image: 'https://i.imgur.com/F3hrntK.jpeg',
-    alt: '写真プリント',
-  },
-  {
-    id: 2,
-    category: 'ポストカード',
-    name: '旅の光 ポストカードセット',
-    sub: '5枚組',
-    price: '¥1,200（税込）',
-    image: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?q=80&w=800&auto=format&fit=crop',
-    alt: 'ポストカードセット',
-  },
-  {
-    id: 3,
-    category: 'トートバッグ',
-    name: '海辺の朝 トートバッグ',
-    sub: 'キャンバス地 / ナチュラル',
-    price: '¥3,800（税込）',
-    image: 'https://images.unsplash.com/photo-1622560480654-d96214fdc887?q=80&w=800&auto=format&fit=crop',
-    alt: 'フォトプリントトート',
-  },
-]
+export const dynamic = 'force-dynamic'
 
-// -----------------------------------------------
+const CATEGORY_LABEL: Record<string, string> = {
+  print: 'フォトプリント',
+  postcard: 'ポストカード',
+  goods: 'グッズ',
+  apparel: 'アパレル',
+}
+
 // トップページに表示するギャラリー写真（5件固定）
 // span: 'row-span-2' → その写真だけ縦2行分の高さになるグリッドレイアウト
-// -----------------------------------------------
 const GALLERY_PHOTOS: { src: string; alt: string; span?: string }[] = [
   {
     src: 'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?q=80&w=800&auto=format&fit=crop',
     alt: '朝の光とカーテン',
-    span: 'row-span-2', // 左上の写真だけ縦に大きく表示してアクセントにする
+    span: 'row-span-2',
   },
   {
     src: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=800&auto=format&fit=crop',
@@ -66,7 +41,18 @@ const GALLERY_PHOTOS: { src: string; alt: string; span?: string }[] = [
   },
 ]
 
-export default function Home() {
+export default async function Home() {
+  // is_featured = true の公開商品を最大3件取得
+  const { data: featured } = await supabaseAdmin
+    .from('products')
+    .select('*')
+    .eq('is_active', true)
+    .eq('is_featured', true)
+    .order('created_at', { ascending: false })
+    .limit(3)
+
+  const products = (featured as Product[]) ?? []
+
   return (
     <>
       {/* -----------------------------------------------
@@ -81,7 +67,6 @@ export default function Home() {
           alt="film photography"
           className="film w-full h-full object-cover object-center"
         />
-        {/* 左から右へ暗くなるグラデーション（右側は透明にして写真を活かす） */}
         <div
           className="absolute inset-0"
           style={{ background: 'linear-gradient(to right, rgba(20,16,12,0.42) 0%, rgba(20,16,12,0.08) 65%, transparent 100%)' }}
@@ -97,7 +82,7 @@ export default function Home() {
       </section>
 
       {/* -----------------------------------------------
-          おすすめ商品セクション（3件グリッド）
+          おすすめ商品セクション（is_featured = true の商品を Supabase から取得）
           ----------------------------------------------- */}
       <section className="max-w-[1100px] mx-auto px-8 pt-16 pb-14">
         <div className="flex items-center justify-between mb-6">
@@ -108,30 +93,24 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-3 gap-4">
-          {FEATURED_PRODUCTS.map((product) => (
-            // group クラスで子要素のホバースタイルを親から制御できる
+          {products.map((product) => (
             <Link
               key={product.id}
-              href="/shop"
+              href={`/shop/${product.id}`}
               className="group border border-border overflow-hidden block transition-shadow duration-300 hover:shadow-[0_4px_20px_rgba(0,0,0,0.06)]"
             >
-              {/* ホバーで 1.04 倍にゆっくり拡大（1400ms で自然な動きを演出） */}
               <div className="overflow-hidden h-60 bg-[#ede9e3]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={product.image}
-                  alt={product.alt}
+                  src={product.image_url}
+                  alt={product.name}
                   className="film w-full h-full object-cover transition-transform duration-[1400ms] ease-in-out group-hover:scale-[1.04]"
                 />
               </div>
               <div className="px-[18px] py-4">
-                <p className="text-[11px] text-muted mb-[5px] tracking-[0.06em]">{product.category}</p>
-                <h4 className="text-[14px] font-normal mb-2 leading-[1.5]">
-                  {product.name}
-                  <br />
-                  <span className="text-[12px] text-muted font-light">{product.sub}</span>
-                </h4>
-                <p className="text-[12px] text-muted2">{product.price}</p>
+                <p className="text-[11px] text-muted mb-[5px] tracking-[0.06em]">{CATEGORY_LABEL[product.category]}</p>
+                <h4 className="text-[14px] font-normal mb-2 leading-[1.5]">{product.name}</h4>
+                <p className="text-[12px] text-muted2">¥{product.price.toLocaleString()}（税込）</p>
               </div>
             </Link>
           ))}
@@ -150,13 +129,11 @@ export default function Home() {
           </Link>
         </div>
 
-        {/* grid-rows=[200px_200px] で各行の高さを固定 */}
         <div className="grid grid-cols-3 grid-rows-[200px_200px] gap-2">
           {GALLERY_PHOTOS.map((photo, i) => (
             <Link
               key={i}
               href="/gallery"
-              // photo.span がある場合のみ row-span-2 クラスを追加
               className={`group overflow-hidden ${photo.span ?? ''}`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
