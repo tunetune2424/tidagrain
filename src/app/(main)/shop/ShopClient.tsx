@@ -41,7 +41,7 @@ export default function ShopClient({ products }: { products: Product[] }) {
 
   return (
     <>
-      <section className="border-b border-border px-8 pt-12 pb-10">
+      <section className="border-b border-border px-4 sm:px-8 pt-12 pb-10">
         <div className="max-w-[1100px] mx-auto">
           <p className="text-[11px] text-muted tracking-[0.1em] mb-[10px]">
             <Link href="/" className="hover:opacity-60 transition-opacity">home</Link>
@@ -51,9 +51,9 @@ export default function ShopClient({ products }: { products: Product[] }) {
         </div>
       </section>
 
-      <section className="border-b border-border px-8 py-5">
-        <div className="max-w-[1100px] mx-auto flex items-center justify-between">
-          <div className="flex gap-2">
+      <section className="border-b border-border px-4 sm:px-8 py-5">
+        <div className="max-w-[1100px] mx-auto flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <div className="flex gap-2 flex-wrap">
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.key}
@@ -83,9 +83,9 @@ export default function ShopClient({ products }: { products: Product[] }) {
         </div>
       </section>
 
-      <section className="max-w-[1100px] mx-auto px-8 pt-12 pb-20">
+      <section className="max-w-[1100px] mx-auto px-4 sm:px-8 pt-12 pb-20">
         <p className="text-[12px] text-muted mb-8">{filtered.length}件</p>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
           {filtered.map((product) => (
             <Link
               key={product.id}

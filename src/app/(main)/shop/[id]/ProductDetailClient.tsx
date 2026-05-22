@@ -37,7 +37,7 @@ export default function ProductDetailClient({
   return (
     <>
       {/* パンくずリスト */}
-      <div className="max-w-[1100px] mx-auto px-8 py-5">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-8 py-5">
         <p className="text-[11px] text-muted tracking-[0.08em]">
           <Link href="/" className="hover:opacity-60 transition-opacity">home</Link>
           {' '}&nbsp;/{' '}&nbsp;
@@ -48,11 +48,11 @@ export default function ProductDetailClient({
       </div>
 
       {/* 商品メインエリア：左に画像、右に情報 */}
-      <section className="max-w-[1100px] mx-auto px-8 pb-20">
-        <div className="grid grid-cols-2 gap-16 items-start">
+      <section className="max-w-[1100px] mx-auto px-4 sm:px-8 pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16 items-start">
 
           {/* 左：商品画像 */}
-          <div className="border border-border overflow-hidden h-[520px]">
+          <div className="border border-border overflow-hidden h-[320px] sm:h-[420px] md:h-[520px]">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={product.image_url}
@@ -105,10 +105,10 @@ export default function ProductDetailClient({
 
       {/* 関連商品 */}
       {related.length > 0 && (
-        <section className="border-t border-border px-8 py-16">
+        <section className="border-t border-border px-4 sm:px-8 py-16">
           <div className="max-w-[1100px] mx-auto">
             <h2 className="text-[15px] font-normal mb-8">関連商品</h2>
-            <div className="grid grid-cols-3 gap-5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-5">
               {related.map((r) => (
                 <Link
                   key={r.id}

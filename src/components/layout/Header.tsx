@@ -1,78 +1,118 @@
 'use client'
 
-// グローバルヘッダー
-// position: sticky + backdrop-filter でスクロールしても上部に残り、背景が半透明になる
-
 import Link from 'next/link'
-import { ShoppingBag } from 'lucide-react'
+import { ShoppingBag, Menu, X } from 'lucide-react'
 import { useCart } from '@/contexts/CartContext'
+import { useState } from 'react'
 
 export default function Header() {
-  // カート内の合計個数（0のときはバッジを非表示）
   const { totalCount } = useCart()
+  const [menuOpen, setMenuOpen] = useState(false)
+
   return (
     <header
       style={{
         borderBottom: '1px solid var(--border)',
-        background: 'rgba(247,244,239,0.92)',  // 半透明の背景（下のコンテンツが透けて見える）
-        backdropFilter: 'blur(6px)',            // 背景をぼかしてガラス風に
-        position: 'sticky',                     // スクロールしても画面上部に固定
+        background: 'rgba(247,244,239,0.92)',
+        backdropFilter: 'blur(6px)',
+        position: 'sticky',
         top: 0,
-        zIndex: 50,                             // 他のコンテンツより前面に表示
+        zIndex: 50,
       }}
     >
       <div
         style={{
           maxWidth: 1100,
           margin: '0 auto',
-          padding: '18px 32px',
+          padding: '18px 20px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
         }}
       >
-        {/* ロゴ：クリックでトップページへ */}
-        <Link
-          href="/"
-          className="font-serif-en"
-          style={{ fontSize: 22, letterSpacing: '0.04em' }}
-        >
+        {/* ロゴ */}
+        <Link href="/" className="font-serif-en" style={{ fontSize: 22, letterSpacing: '0.04em' }}>
           tidagrain.
         </Link>
 
-        <nav style={{ display: 'flex', gap: 36, alignItems: 'center' }}>
+        {/* デスクトップ用ナビ */}
+        <nav className="hidden md:flex" style={{ gap: 36, alignItems: 'center' }}>
           <Link href="/shop" className="nav-link">ショップ</Link>
           <Link href="/gallery" className="nav-link">ギャラリー</Link>
           <Link href="/about" className="nav-link">私たちについて</Link>
-          {/* カートアイコン：個数が1以上のときだけバッジを表示 */}
-          <Link
-            href="/cart"
-            style={{ display: 'flex', alignItems: 'center', gap: 6, position: 'relative' }}
-          >
+          <Link href="/cart" style={{ display: 'flex', alignItems: 'center', gap: 6, position: 'relative' }}>
             <ShoppingBag size={15} strokeWidth={1.5} />
             カート
-            {/* totalCount > 0 のときだけバッジを表示（0のときは何も表示しない） */}
             {totalCount > 0 && (
               <span style={{
-                position: 'absolute',
-                top: -8,
-                right: -12,
-                background: 'var(--text)',
-                color: 'var(--bg)',
-                fontSize: 10,
-                width: 18,
-                height: 18,
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                position: 'absolute', top: -8, right: -12,
+                background: 'var(--text)', color: 'var(--bg)',
+                fontSize: 10, width: 18, height: 18,
+                borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
               }}>
                 {totalCount}
               </span>
             )}
           </Link>
         </nav>
+
+        {/* モバイル用：カートアイコン + ハンバーガー */}
+        <div className="flex md:hidden items-center gap-4">
+          <Link href="/cart" style={{ display: 'flex', alignItems: 'center', position: 'relative' }}>
+            <ShoppingBag size={18} strokeWidth={1.5} />
+            {totalCount > 0 && (
+              <span style={{
+                position: 'absolute', top: -6, right: -8,
+                background: 'var(--text)', color: 'var(--bg)',
+                fontSize: 9, width: 16, height: 16,
+                borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                {totalCount}
+              </span>
+            )}
+          </Link>
+          <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 4 }}>
+            {menuOpen ? <X size={20} strokeWidth={1.5} /> : <Menu size={20} strokeWidth={1.5} />}
+          </button>
+        </div>
       </div>
+
+      {/* モバイル用ドロップダウンメニュー */}
+      {menuOpen && (
+        <nav
+          className="md:hidden"
+          style={{
+            borderTop: '1px solid var(--border)',
+            background: 'rgba(247,244,239,0.98)',
+            padding: '12px 20px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 0,
+          }}
+        >
+          {[
+            { href: '/shop', label: 'ショップ' },
+            { href: '/gallery', label: 'ギャラリー' },
+            { href: '/about', label: '私たちについて' },
+          ].map(({ href, label }) => (
+            <Link
+              key={href}
+              href={href}
+              onClick={() => setMenuOpen(false)}
+              style={{
+                padding: '14px 0',
+                fontSize: 13,
+                borderBottom: '1px solid var(--border)',
+                color: 'var(--text)',
+                textDecoration: 'none',
+                letterSpacing: '0.04em',
+              }}
+            >
+              {label}
+            </Link>
+          ))}
+        </nav>
+      )}
     </header>
   )
 }

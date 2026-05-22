@@ -68,7 +68,7 @@ export default async function GalleryDetailPage({ params }: { params: { id: stri
   return (
     <>
       {/* パンくずリスト */}
-      <div className="max-w-[1100px] mx-auto px-8 py-5">
+      <div className="max-w-[1100px] mx-auto px-4 sm:px-8 py-5">
         <p className="text-[11px] text-muted tracking-[0.08em]">
           <Link href="/" className="hover:opacity-60 transition-opacity">home</Link>
           {' '}&nbsp;/{' '}&nbsp;
@@ -79,8 +79,8 @@ export default async function GalleryDetailPage({ params }: { params: { id: stri
       </div>
 
       {/* メインコンテンツ：左に写真 / 右に情報 */}
-      <section className="max-w-[1100px] mx-auto px-8 pb-20">
-        <div className="grid grid-cols-[1fr_400px] gap-16 items-start">
+      <section className="max-w-[1100px] mx-auto px-4 sm:px-8 pb-20">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_400px] gap-8 md:gap-16 items-start">
 
           {/* 左カラム：写真エリア */}
           <div>
@@ -120,7 +120,7 @@ export default async function GalleryDetailPage({ params }: { params: { id: stri
           </div>
 
           {/* 右カラム：写真情報 */}
-          <div className="pt-12">
+          <div className="md:pt-12">
             {photo.tag && (
               <p className="text-[11px] text-muted tracking-[0.08em] mb-3">{photo.tag}</p>
             )}
@@ -171,7 +171,7 @@ export default async function GalleryDetailPage({ params }: { params: { id: stri
 
       {/* 他の写真セクション */}
       {related.length > 0 && (
-        <section className="border-t border-border px-8 py-14">
+        <section className="border-t border-border px-4 sm:px-8 py-14">
           <div className="max-w-[1100px] mx-auto">
             <div className="flex items-center justify-between mb-7">
               <h2 className="text-[15px] font-normal">他の写真</h2>
@@ -179,7 +179,7 @@ export default async function GalleryDetailPage({ params }: { params: { id: stri
                 ギャラリーをすべて見る <ChevronRight size={12} />
               </Link>
             </div>
-            <div className="grid grid-cols-4 gap-[10px]">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-[10px]">
               {related.map((r) => (
                 <Link
                   key={r.id}

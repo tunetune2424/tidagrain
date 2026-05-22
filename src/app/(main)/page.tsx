@@ -68,7 +68,7 @@ export default async function Home() {
       {/* -----------------------------------------------
           おすすめ商品セクション（is_featured = true の商品を Supabase から取得）
           ----------------------------------------------- */}
-      <section className="max-w-[1100px] mx-auto px-8 pt-16 pb-14">
+      <section className="max-w-[1100px] mx-auto px-4 sm:px-8 pt-12 sm:pt-16 pb-14">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-[15px] font-normal tracking-[0.02em]">おすすめの商品</h2>
           <Link href="/shop" className="text-[12px] text-muted flex items-center gap-1 hover:opacity-70 transition-opacity">
@@ -76,7 +76,7 @@ export default async function Home() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {products.map((product) => (
             <Link
               key={product.id}
@@ -105,7 +105,7 @@ export default async function Home() {
           ギャラリーセクション
           grid-rows で行の高さを固定し、row-span-2 の写真だけ縦2行分になる
           ----------------------------------------------- */}
-      <section className="max-w-[1100px] mx-auto px-8 pb-[72px]">
+      <section className="max-w-[1100px] mx-auto px-4 sm:px-8 pb-[72px]">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-[15px] font-normal tracking-[0.02em]">ギャラリー</h2>
           <Link href="/gallery" className="text-[12px] text-muted flex items-center gap-1 hover:opacity-70 transition-opacity">
@@ -113,12 +113,12 @@ export default async function Home() {
           </Link>
         </div>
 
-        <div className="grid grid-cols-3 grid-rows-[200px_200px] gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 grid-rows-[160px_160px] sm:grid-rows-[200px_200px] gap-2">
           {galleryPhotos.map((photo, i) => (
             <Link
               key={photo.id}
               href={`/gallery/${photo.id}`}
-              className={`group overflow-hidden ${i === 0 ? 'row-span-2' : ''}`}
+              className={`group overflow-hidden ${i === 0 ? 'sm:row-span-2' : ''}`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
