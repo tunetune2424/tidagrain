@@ -14,6 +14,7 @@ export type Photo = {
   memo: string | null        // 一言メモ（任意）
   image_url: string          // Supabase Storage の公開URL
   is_public: boolean         // true のときだけギャラリーに表示する
+  tag: string | null         // タグ（沖縄・日常・旅・自然 など）
   created_at: string
   updated_at: string
 }
