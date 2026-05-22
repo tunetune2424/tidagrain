@@ -1,7 +1,13 @@
 // ギャラリー一覧ページ（/gallery）
 // Server Component：Supabase から公開写真を取得して GalleryClient に渡す
 
+import type { Metadata } from 'next'
 import { supabaseAdmin } from '@/lib/supabase'
+
+export const metadata: Metadata = {
+  title: 'ギャラリー',
+  description: 'フィルムカメラで撮った写真を展示しています。沖縄・日常・旅・自然をテーマに。',
+}
 import type { Photo } from '@/types'
 import { GalleryClient } from './GalleryClient'
 

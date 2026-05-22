@@ -7,8 +7,19 @@ import './globals.css'
 import { CartProvider } from '@/contexts/CartContext'
 
 export const metadata: Metadata = {
-  title: 'tidagrain. — 光の粒を、持ち歩く。',
-  description: 'フィルムカメラで撮った自然・日常の写真を軸にしたライフスタイルブランド',
+  title: {
+    default: 'tidagrain. — 光の粒を、持ち歩く。',
+    template: '%s | tidagrain.',
+  },
+  description: 'フィルムカメラで撮った自然・日常の写真を軸にしたライフスタイルブランド。写真プリント・ポストカード・グッズをお届けします。',
+  openGraph: {
+    siteName: 'tidagrain.',
+    locale: 'ja_JP',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+  },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

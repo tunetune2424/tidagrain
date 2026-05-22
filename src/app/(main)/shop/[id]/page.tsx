@@ -4,8 +4,19 @@ import { supabaseAdmin } from '@/lib/supabase'
 import type { Product } from '@/types'
 import { notFound } from 'next/navigation'
 import ProductDetailClient from './ProductDetailClient'
+import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const { data } = await supabaseAdmin
+    .from('products').select('name, description').eq('id', params.id).single()
+  if (!data) return {}
+  return {
+    title: data.name,
+    description: data.description ?? `${data.name}の商品詳細ページ`,
+  }
+}
 
 export default async function ProductDetailPage({ params }: { params: { id: string } }) {
   // URL の id（UUID）で該当商品を1件取得。公開中のみ対象

@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# tidagrain.
 
-## Getting Started
+フィルムカメラで撮った写真を軸にしたライフスタイルブランドのECサイト。  
+写真プリント・ポストカード・グッズの販売と、ギャラリー展示を行っています。
 
-First, run the development server:
+**ポートフォリオ用プロジェクト**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## 技術スタック
+
+| カテゴリ | 技術 |
+|---|---|
+| フレームワーク | Next.js 15 (App Router) |
+| 言語 | TypeScript |
+| スタイリング | Tailwind CSS |
+| データベース | Supabase (PostgreSQL) |
+| 認証 | Supabase Auth |
+| 決済 | Stripe Checkout |
+| デプロイ | Vercel |
+
+---
+
+## 主な機能
+
+- **ショップ** — 商品一覧（カテゴリフィルター）・商品詳細・カート・Stripe決済
+- **ギャラリー** — 写真一覧（タグフィルター）・写真詳細
+- **管理画面** — 商品・注文・写真の管理（ログイン必須）
+
+---
+
+## ページ構成
+
+```
+/               トップ（おすすめ商品・ギャラリープレビュー）
+/shop           ショップ一覧
+/shop/[id]      商品詳細
+/gallery        ギャラリー一覧
+/gallery/[id]   写真詳細
+/about          ブランドについて
+/cart           カート
+/checkout       購入手続き（Stripe）
+/complete       注文完了
+/admin          管理画面（商品・注文管理）
+/admin/gallery  写真管理
+/admin/login    管理者ログイン
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## ローカル環境のセットアップ
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# 依存パッケージのインストール
+npm install
 
-## Learn More
+# 開発サーバーの起動
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+`http://localhost:3000` で確認できます。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 必要な環境変数
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+`.env.local` を作成して以下を設定してください。
 
-## Deploy on Vercel
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
+NEXT_PUBLIC_BASE_URL=
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## データベース
+
+Supabase (PostgreSQL) を使用しています。テーブル構成：
+
+- `photos` — ギャラリー写真
+- `products` — 商品
+- `product_variants` — 商品バリエーション（サイズ・フレーム）
+- `orders` — 注文
+- `order_items` — 注文明細

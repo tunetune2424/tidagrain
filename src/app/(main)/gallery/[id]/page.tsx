@@ -7,8 +7,19 @@ import { notFound } from 'next/navigation'
 import { supabaseAdmin } from '@/lib/supabase'
 import type { Photo } from '@/types'
 import { CopyLinkButton } from './CopyLinkButton'
+import type { Metadata } from 'next'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+  const { data } = await supabaseAdmin
+    .from('photos').select('title, memo').eq('id', params.id).single()
+  if (!data) return {}
+  return {
+    title: data.title,
+    description: data.memo ?? `${data.title} — tidagrain. ギャラリー`,
+  }
+}
 
 export default async function GalleryDetailPage({ params }: { params: { id: string } }) {
   // 該当写真・前後の写真・関連写真を並列取得

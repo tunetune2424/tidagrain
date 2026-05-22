@@ -1,5 +1,12 @@
 export const dynamic = 'force-dynamic'
 
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'ショップ',
+  description: 'tidagrain. のオンラインショップ。写真プリント・ポストカード・アパレル・グッズをお届けします。',
+}
+
 // Server Component：サーバー側で Supabase からデータを取得し ShopClient に渡す
 // フィルター・並び替えの UI は ShopClient.tsx（Client Component）で管理している
 
