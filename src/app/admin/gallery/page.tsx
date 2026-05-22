@@ -119,6 +119,7 @@ export default async function AdminGalleryPage() {
 const thStyle: React.CSSProperties = {
   textAlign: 'left', padding: '12px 16px',
   fontSize: '11px', color: '#8B7B6A', letterSpacing: '0.08em', fontWeight: 400,
+  whiteSpace: 'nowrap',
 }
 
 const tdStyle: React.CSSProperties = {

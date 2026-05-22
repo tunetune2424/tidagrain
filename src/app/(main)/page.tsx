@@ -4,7 +4,7 @@
 import Link from 'next/link'
 import { ChevronRight } from 'lucide-react'
 import { supabaseAdmin } from '@/lib/supabase'
-import type { Product } from '@/types'
+import type { Product, Photo } from '@/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,32 +14,6 @@ const CATEGORY_LABEL: Record<string, string> = {
   goods: 'グッズ',
   apparel: 'アパレル',
 }
-
-// トップページに表示するギャラリー写真（5件固定）
-// span: 'row-span-2' → その写真だけ縦2行分の高さになるグリッドレイアウト
-const GALLERY_PHOTOS: { src: string; alt: string; span?: string }[] = [
-  {
-    src: 'https://images.unsplash.com/photo-1545173168-9f1947eebb7f?q=80&w=800&auto=format&fit=crop',
-    alt: '朝の光とカーテン',
-    span: 'row-span-2',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=800&auto=format&fit=crop',
-    alt: '猫',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop',
-    alt: '海岸',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?q=80&w=800&auto=format&fit=crop',
-    alt: '日本の路地',
-  },
-  {
-    src: 'https://images.unsplash.com/photo-1490750967868-88df5691cc45?q=80&w=800&auto=format&fit=crop',
-    alt: '野の花',
-  },
-]
 
 export default async function Home() {
   // is_featured = true の公開商品を最大3件取得
@@ -52,6 +26,16 @@ export default async function Home() {
     .limit(3)
 
   const products = (featured as Product[]) ?? []
+
+  // ギャラリー：公開写真を最大5件取得
+  const { data: galleryData } = await supabaseAdmin
+    .from('photos')
+    .select('*')
+    .eq('is_public', true)
+    .order('created_at', { ascending: false })
+    .limit(5)
+
+  const galleryPhotos = (galleryData as Photo[]) ?? []
 
   return (
     <>
@@ -130,16 +114,16 @@ export default async function Home() {
         </div>
 
         <div className="grid grid-cols-3 grid-rows-[200px_200px] gap-2">
-          {GALLERY_PHOTOS.map((photo, i) => (
+          {galleryPhotos.map((photo, i) => (
             <Link
-              key={i}
-              href="/gallery"
-              className={`group overflow-hidden ${photo.span ?? ''}`}
+              key={photo.id}
+              href={`/gallery/${photo.id}`}
+              className={`group overflow-hidden ${i === 0 ? 'row-span-2' : ''}`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={photo.src}
-                alt={photo.alt}
+                src={photo.image_url}
+                alt={photo.title}
                 className="film w-full h-full object-cover transition-transform duration-[1800ms] ease-in-out group-hover:scale-[1.04]"
               />
             </Link>
