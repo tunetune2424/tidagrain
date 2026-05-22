@@ -35,6 +35,7 @@ export default async function AdminPage() {
           <p style={{ fontSize: '10px', color: '#8B7B6A', letterSpacing: '0.12em', textTransform: 'uppercase' }}>admin dashboard</p>
         </div>
         <div style={{ display: 'flex', gap: '24px', alignItems: 'center' }}>
+          <a href="/admin/gallery" style={{ fontSize: '11px', color: '#8B7B6A', textDecoration: 'none' }}>写真管理</a>
           <a href="/" style={{ fontSize: '11px', color: '#8B7B6A', textDecoration: 'none' }}>← サイトに戻る</a>
           {/* form で Server Action（signOut）を呼び出す */}
           <form action={signOut}>
