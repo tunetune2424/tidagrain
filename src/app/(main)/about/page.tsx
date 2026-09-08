@@ -45,6 +45,7 @@ export default function AboutPage() {
     <>
       {/* Hero：ブランドロゴを中央に重ねたフルビジュアル */}
       <section className="relative h-[56vh] overflow-hidden border-b border-border">
+        {/* TODO: 本番画像に差し替える場合はSupabase Storageにアップロードして参照する */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="https://images.unsplash.com/photo-1528360983277-13d401cdc186?q=80&w=1800&auto=format&fit=crop"
@@ -97,6 +98,7 @@ export default function AboutPage() {
       <section className="border-t border-b border-border">
         <div className="grid grid-cols-2">
           <div className="overflow-hidden h-[520px]">
+            {/* TODO: 本番画像に差し替える場合はSupabase Storageにアップロードして参照する */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="https://images.unsplash.com/photo-1545173168-9f1947eebb7f?q=80&w=900&auto=format&fit=crop"

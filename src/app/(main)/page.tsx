@@ -45,6 +45,7 @@ export default async function Home() {
           グラデーションオーバーレイで左側を暗くしてテキストを読みやすくする
           ----------------------------------------------- */}
       <section className="relative h-[54vh] overflow-hidden">
+        {/* TODO: 本番画像に差し替える場合はSupabase Storageにアップロードして参照する */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="https://i.imgur.com/EnZcuHD.jpeg"
