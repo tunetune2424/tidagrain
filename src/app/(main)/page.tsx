@@ -92,9 +92,9 @@ export default async function Home() {
                 />
               </div>
               <div className="px-[18px] py-4">
-                <p className="text-[11px] text-muted mb-[5px] tracking-[0.06em]">{CATEGORY_LABEL[product.category]}</p>
-                <h4 className="text-[14px] font-normal mb-2 leading-[1.5]">{product.name}</h4>
-                <p className="text-[12px] text-muted2">¥{product.price.toLocaleString()}（税込）</p>
+                <p className="text-[12px] text-muted mb-[5px] tracking-[0.06em]">{CATEGORY_LABEL[product.category]}</p>
+                <h4 className="text-[16px] font-normal mb-2 leading-[1.5]">{product.name}</h4>
+                <p className="text-[14px] text-muted2">¥{product.price.toLocaleString()}（税込）</p>
               </div>
             </Link>
           ))}
@@ -136,7 +136,7 @@ export default async function Home() {
           ----------------------------------------------- */}
       <section className="border-t border-border py-20 text-center">
         <h2 className="text-[15px] font-normal mb-7 tracking-[0.04em]">私たちの想い</h2>
-        <p className="font-serif-jp text-[13px] leading-[3] text-muted2 max-w-[500px] mx-auto font-light">
+        <p className="font-serif-jp text-[15px] leading-[2.6] text-muted2 max-w-[560px] mx-auto font-light">
           tidagrain. は、フィルムで写した「光の粒」を分かち合うブランドです。<br />
           何気ない日常や旅の風景、心が動いたその瞬間をフィルムに残し、<br />
           写真作品や日用品としてお届けしています。<br />

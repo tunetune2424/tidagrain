@@ -84,7 +84,7 @@ export default function ShopClient({ products }: { products: Product[] }) {
       </section>
 
       <section className="max-w-[1100px] mx-auto px-4 sm:px-8 pt-12 pb-20">
-        <p className="text-[12px] text-muted mb-8">{filtered.length}件</p>
+        <p className="text-[13px] text-muted mb-8">{filtered.length}件</p>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 sm:gap-6">
           {filtered.map((product) => (
             <Link
@@ -101,10 +101,10 @@ export default function ShopClient({ products }: { products: Product[] }) {
                 />
               </div>
               <div className="px-5 py-[18px]">
-                <p className="text-[11px] text-muted mb-[5px]">{CATEGORY_LABEL[product.category]}</p>
-                <h4 className="text-[14px] font-normal mb-1">{product.name}</h4>
-                <p className="text-[11px] text-muted mb-[10px]">{product.description}</p>
-                <p className="text-[13px]">¥{product.price.toLocaleString()}</p>
+                <p className="text-[12px] text-muted mb-[5px]">{CATEGORY_LABEL[product.category]}</p>
+                <h4 className="text-[16px] font-normal mb-1">{product.name}</h4>
+                <p className="text-[13px] text-muted mb-[10px]">{product.description}</p>
+                <p className="text-[15px]">¥{product.price.toLocaleString()}</p>
               </div>
             </Link>
           ))}
