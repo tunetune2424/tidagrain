@@ -71,6 +71,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Search
           <p style={{ fontSize: '10px', color: '#8B7B6A', letterSpacing: '0.12em', textTransform: 'uppercase' }}>admin dashboard</p>
         </div>
         <div style={{ display: 'flex', gap: '24px', alignItems: 'center', flexWrap: 'wrap' }}>
+          <a href="/admin/media" style={{ fontSize: '11px', color: '#8B7B6A', textDecoration: 'none' }}>画像ライブラリ</a>
           <a href="/admin/gallery" style={{ fontSize: '11px', color: '#8B7B6A', textDecoration: 'none' }}>写真管理</a>
           <a href="/" style={{ fontSize: '11px', color: '#8B7B6A', textDecoration: 'none' }}>← サイトに戻る</a>
           {/* form で Server Action（signOut）を呼び出す */}
