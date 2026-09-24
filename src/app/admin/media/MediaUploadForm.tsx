@@ -2,9 +2,9 @@
 
 import { useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { uploadProductImage } from './actions'
+import { uploadLibraryImage } from './actions'
 
-// 画像ライブラリへのアップロード専用フォーム（商品は作らず、R2に画像を溜めるだけ）
+// 画像ライブラリへのアップロード専用フォーム（商品・写真いずれのデータも作らず、R2に画像を溜めるだけ）
 
 type Preview = { file: File; url: string }
 
@@ -52,7 +52,7 @@ export function MediaUploadForm() {
 
         const fd = new FormData()
         fd.set('file', file)
-        const result = await uploadProductImage(fd)
+        const result = await uploadLibraryImage(fd)
 
         if ('error' in result) {
           throw new Error(result.error)

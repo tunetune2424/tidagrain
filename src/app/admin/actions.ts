@@ -18,39 +18,8 @@ import { supabaseAdmin } from '@/lib/supabase'
 // supabaseAdmin: サービスロールキーを使った管理者権限の Supabase クライアント
 // RLS（行レベルセキュリティ）を無視して全データにアクセスできる
 
-import { uploadFileToR2, R2UploadError } from '@/lib/r2'
-// R2へのアップロードはサーバー側でのみ行う（アクセスキーをブラウザに渡さないため）
-
-// 商品画像をCloudflare R2にアップロードし、公開URLを返す
-// 失敗時は { error: string } を返す（成功時のURLと失敗時のエラーを取り違えないよう、
-// 例外をそのまま握りつぶして成功扱いにはしない）
-export async function uploadProductImage(
-  formData: FormData
-): Promise<{ url: string } | { error: string }> {
-  const file = formData.get('file') as File | null
-  if (!file || file.size === 0) {
-    return { error: 'ファイルが選択されていません。' }
-  }
-
-  try {
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
-    const ext = file.name.split('.').pop() ?? 'jpg'
-    const key = `products/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
-
-    const url = await uploadFileToR2({
-      buffer,
-      key,
-      contentType: file.type || 'application/octet-stream',
-    })
-
-    return { url }
-  } catch (err) {
-    console.error(err)
-    const message = err instanceof R2UploadError ? err.message : 'アップロードに失敗しました。'
-    return { error: message }
-  }
-}
+// 商品画像のアップロード自体は画像ライブラリ（/admin/media, src/app/admin/media/actions.ts の
+// uploadLibraryImage）に一本化している。このファイルでは商品データの読み書きのみを扱う。
 
 // 商品の公開/非公開を切り替える
 export async function toggleProductActive(formData: FormData) {

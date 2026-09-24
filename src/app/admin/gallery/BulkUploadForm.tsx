@@ -1,9 +1,13 @@
 'use client'
 
-import { useState, useRef, useCallback } from 'react'
-import { bulkAddPhotos, uploadPhotoImage } from './actions'
+import { useState } from 'react'
+import Link from 'next/link'
+import { bulkAddPhotos } from './actions'
+import { listMediaImages } from '../media/actions'
+import type { R2Object } from '@/lib/r2'
 
-// 写真はCloudflare R2に保存する（'photos/' プレフィックス、詳細は src/lib/r2.ts 参照）
+// 写真の登録は「画像ライブラリ」（/admin/media）からまとめて選ぶ方式にしている。
+// アップロード自体はライブラリ側に一本化し、ここでは複数選択と共通メタデータの入力のみを行う。
 
 const inputStyle: React.CSSProperties = {
   fontSize: '13px', padding: '8px 12px',
@@ -11,133 +15,115 @@ const inputStyle: React.CSSProperties = {
   color: '#1E1814', outline: 'none', width: '100%', boxSizing: 'border-box',
 }
 
-type Preview = { file: File; url: string }
-
 export function BulkUploadForm() {
-  const [previews, setPreviews] = useState<Preview[]>([])
-  const [uploading, setUploading] = useState(false)
-  const [progress, setProgress] = useState(0)
+  const [pickerOpen, setPickerOpen] = useState(false)
+  const [mediaImages, setMediaImages] = useState<R2Object[]>([])
+  const [loadingMedia, setLoadingMedia] = useState(false)
+  const [mediaError, setMediaError] = useState<string | null>(null)
+  const [selected, setSelected] = useState<R2Object[]>([])
+  const [submitting, setSubmitting] = useState(false)
+  const [title, setTitle] = useState('')
   const [tag, setTag] = useState('')
   const [location, setLocation] = useState('')
   const [camera, setCamera] = useState('')
   const [film, setFilm] = useState('')
-  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const addFiles = useCallback((files: File[]) => {
-    const imageFiles = files.filter(f => f.type.startsWith('image/'))
-    setPreviews(prev => [
-      ...prev,
-      ...imageFiles.map(file => ({ file, url: URL.createObjectURL(file) })),
-    ])
-  }, [])
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    addFiles(Array.from(e.target.files ?? []))
-  }
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault()
-    addFiles(Array.from(e.dataTransfer.files))
-  }
-
-  function removeFile(index: number) {
-    setPreviews(prev => {
-      URL.revokeObjectURL(prev[index].url)
-      return prev.filter((_, i) => i !== index)
-    })
-  }
-
-  async function handleUpload() {
-    if (previews.length === 0) return
-    setUploading(true)
-    setProgress(0)
+  async function openPicker() {
+    setPickerOpen(true)
+    setLoadingMedia(true)
+    setMediaError(null)
 
     try {
-      const photoData: Parameters<typeof bulkAddPhotos>[0] = []
+      const images = await listMediaImages()
+      setMediaImages(images)
+    } catch (err) {
+      console.error(err)
+      setMediaError(err instanceof Error ? err.message : '画像一覧の取得に失敗しました。')
+    } finally {
+      setLoadingMedia(false)
+    }
+  }
 
-      for (let i = 0; i < previews.length; i++) {
-        const { file } = previews[i]
+  function toggleSelect(img: R2Object) {
+    setSelected(prev =>
+      prev.some(s => s.key === img.key)
+        ? prev.filter(s => s.key !== img.key)
+        : [...prev, img]
+    )
+  }
 
-        const fd = new FormData()
-        fd.set('file', file)
-        const result = await uploadPhotoImage(fd)
+  function removeSelected(key: string) {
+    setSelected(prev => prev.filter(s => s.key !== key))
+  }
 
-        if ('error' in result) {
-          throw new Error(result.error)
-        }
+  async function handleSubmit() {
+    if (selected.length === 0) return
+    setSubmitting(true)
 
-        photoData.push({
-          title: file.name.replace(/\.[^.]+$/, ''),
-          image_url: result.url,
-          tag: tag || null,
-          location: location || null,
-          camera: camera || null,
-          film: film || null,
-        })
-
-        setProgress(Math.round(((i + 1) / previews.length) * 100))
-      }
+    try {
+      const photoData: Parameters<typeof bulkAddPhotos>[0] = selected.map((img, i) => ({
+        title: title
+          ? (selected.length > 1 ? `${title} ${i + 1}` : title)
+          : '無題',
+        image_url: img.url,
+        tag: tag || null,
+        location: location || null,
+        camera: camera || null,
+        film: film || null,
+      }))
 
       await bulkAddPhotos(photoData)
 
-      previews.forEach(p => URL.revokeObjectURL(p.url))
-      setPreviews([])
-      if (fileInputRef.current) fileInputRef.current.value = ''
-      setTag(''); setLocation(''); setCamera(''); setFilm('')
+      setSelected([])
+      setTitle(''); setTag(''); setLocation(''); setCamera(''); setFilm('')
       alert(`${photoData.length}枚の写真を登録しました（すべて非公開状態）`)
     } catch (err) {
       console.error(err)
-      const message = err instanceof Error ? err.message : 'アップロードに失敗しました。R2の設定（.env.localの環境変数）を確認してください。'
+      const message = err instanceof Error ? err.message : '登録に失敗しました。'
       alert(message)
     } finally {
-      setUploading(false)
-      setProgress(0)
+      setSubmitting(false)
     }
   }
 
   return (
     <section style={{ marginTop: '48px' }}>
       <h2 style={{ fontSize: '11px', letterSpacing: '0.2em', color: '#8B7B6A', textTransform: 'uppercase', marginBottom: '24px' }}>
-        Bulk Upload / 一括アップロード
+        Add Photos / 画像ライブラリから写真を追加
       </h2>
-      <div style={{ border: '1px solid #E5E1DC', padding: '28px 24px' }}>
+      <div style={{ border: '1px solid #E5E1DC', padding: '28px 24px', position: 'relative' }}>
 
-        <div
-          onDrop={handleDrop}
-          onDragOver={e => e.preventDefault()}
-          onClick={() => fileInputRef.current?.click()}
-          style={{
-            border: '2px dashed #E5E1DC', padding: '32px 24px',
-            textAlign: 'center', cursor: 'pointer', marginBottom: '24px',
-          }}
-        >
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleFileChange}
-            style={{ display: 'none' }}
-          />
-          <p style={{ fontSize: '13px', color: '#8B7B6A' }}>クリックまたはドラッグ＆ドロップで複数の画像を選択</p>
-          <p style={{ fontSize: '11px', color: '#B0A090', marginTop: '4px' }}>JPG・PNG・WEBP 対応</p>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', marginBottom: '20px' }}>
+          <button
+            type="button"
+            onClick={openPicker}
+            style={{
+              fontSize: '12px', padding: '8px 16px',
+              border: '1px solid #1E1814', background: 'transparent', color: '#1E1814', cursor: 'pointer',
+            }}
+          >
+            画像ライブラリから選択（複数可）
+          </button>
+          <Link href="/admin/media" style={{ fontSize: '11px', color: '#8B7B6A' }}>
+            画像ライブラリを開く（新規アップロードはこちら）
+          </Link>
         </div>
 
-        {previews.length > 0 && (
+        {selected.length > 0 && (
           <div style={{ marginBottom: '24px' }}>
-            <p style={{ fontSize: '11px', color: '#8B7B6A', marginBottom: '8px' }}>{previews.length}枚選択中</p>
+            <p style={{ fontSize: '11px', color: '#8B7B6A', marginBottom: '8px' }}>{selected.length}枚選択中</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(90px, 1fr))', gap: '8px' }}>
-              {previews.map((p, i) => (
-                <div key={i} style={{ position: 'relative' }}>
+              {selected.map(img => (
+                <div key={img.key} style={{ position: 'relative' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={p.url}
-                    alt={p.file.name}
+                    src={img.url}
+                    alt={img.key}
                     style={{ width: '100%', aspectRatio: '1', objectFit: 'contain', display: 'block', background: '#EEEBE5' }}
                   />
                   <button
                     type="button"
-                    onClick={e => { e.stopPropagation(); removeFile(i) }}
+                    onClick={() => removeSelected(img.key)}
                     style={{
                       position: 'absolute', top: '3px', right: '3px',
                       background: 'rgba(0,0,0,0.55)', color: '#fff',
@@ -154,6 +140,7 @@ export function BulkUploadForm() {
         )}
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '16px' }}>
+          <input value={title} onChange={e => setTitle(e.target.value)} placeholder="タイトル（共通・任意。複数選択時は連番付与）" style={inputStyle} />
           <select value={tag} onChange={e => setTag(e.target.value)} style={inputStyle}>
             <option value="">タグなし（全写真共通）</option>
             <option value="沖縄">沖縄</option>
@@ -167,40 +154,123 @@ export function BulkUploadForm() {
         </div>
 
         <p style={{ fontSize: '11px', color: '#8B7B6A', marginBottom: '16px' }}>
-          ※ タイトルはファイル名から自動設定されます。追加後に「編集」ボタンで変更できます。<br />
+          ※ タイトル未入力の場合は「無題」で登録されます。追加後に「編集」ボタンで変更できます。<br />
           ※ 追加直後はすべて非公開状態になります。
         </p>
-
-        {uploading && (
-          <div style={{ marginBottom: '12px' }}>
-            <div style={{ background: '#E5E1DC', height: '4px', borderRadius: '2px' }}>
-              <div style={{ background: '#1E1814', height: '4px', borderRadius: '2px', width: `${progress}%`, transition: 'width 0.3s' }} />
-            </div>
-            <p style={{ fontSize: '11px', color: '#8B7B6A', marginTop: '4px' }}>{progress}%</p>
-          </div>
-        )}
 
         <div style={{ textAlign: 'right' }}>
           <button
             type="button"
-            onClick={handleUpload}
-            disabled={previews.length === 0 || uploading}
+            onClick={handleSubmit}
+            disabled={selected.length === 0 || submitting}
             style={{
               fontSize: '12px', padding: '8px 24px',
               border: '1px solid #1E1814',
-              background: previews.length === 0 || uploading ? '#E5E1DC' : '#1E1814',
-              color: previews.length === 0 || uploading ? '#8B7B6A' : '#F7F4EF',
-              cursor: previews.length === 0 || uploading ? 'not-allowed' : 'pointer',
+              background: selected.length === 0 || submitting ? '#E5E1DC' : '#1E1814',
+              color: selected.length === 0 || submitting ? '#8B7B6A' : '#F7F4EF',
+              cursor: selected.length === 0 || submitting ? 'not-allowed' : 'pointer',
             }}
           >
-            {uploading
-              ? `アップロード中… ${progress}%`
-              : previews.length > 0
-                ? `${previews.length}枚をアップロード`
-                : 'アップロード'}
+            {submitting
+              ? '登録中…'
+              : selected.length > 0
+                ? `${selected.length}枚を登録`
+                : '登録'}
           </button>
         </div>
       </div>
+
+      {/* 画像ライブラリピッカー（モーダル・複数選択） */}
+      {pickerOpen && (
+        <div
+          onClick={() => setPickerOpen(false)}
+          style={{
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '24px', zIndex: 100,
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: '#F7F4EF', border: '1px solid #E5E1DC',
+              maxWidth: '720px', width: '100%', maxHeight: '80vh',
+              display: 'flex', flexDirection: 'column',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '1px solid #E5E1DC' }}>
+              <p style={{ fontSize: '12px', letterSpacing: '0.08em', color: '#8B7B6A', textTransform: 'uppercase', margin: 0 }}>
+                画像ライブラリから選択（複数可）
+              </p>
+              <button
+                type="button"
+                onClick={() => setPickerOpen(false)}
+                style={{ background: 'none', border: 'none', fontSize: '18px', color: '#8B7B6A', cursor: 'pointer' }}
+              >×</button>
+            </div>
+            <div style={{ padding: '20px', overflowY: 'auto' }}>
+              {loadingMedia ? (
+                <p style={{ fontSize: '12px', color: '#8B7B6A', textAlign: 'center', padding: '24px' }}>読み込み中…</p>
+              ) : mediaError ? (
+                <p style={{ fontSize: '12px', color: '#B4453C', textAlign: 'center', padding: '24px' }}>{mediaError}</p>
+              ) : mediaImages.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '24px' }}>
+                  <p style={{ fontSize: '12px', color: '#8B7B6A', marginBottom: '12px' }}>
+                    画像ライブラリに画像がありません
+                  </p>
+                  <Link href="/admin/media" style={{ fontSize: '12px', color: '#1E1814', textDecoration: 'underline' }}>
+                    画像ライブラリでアップロードする
+                  </Link>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))', gap: '10px' }}>
+                  {mediaImages.map((img) => {
+                    const isSelected = selected.some(s => s.key === img.key)
+                    return (
+                      <button
+                        type="button"
+                        key={img.key}
+                        onClick={() => toggleSelect(img)}
+                        style={{
+                          border: isSelected ? '2px solid #1E1814' : '1px solid #E5E1DC',
+                          background: '#EEEBE5', padding: 0, cursor: 'pointer', position: 'relative',
+                        }}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={img.url}
+                          alt={img.key}
+                          style={{ width: '100%', aspectRatio: '1', objectFit: 'contain', display: 'block' }}
+                        />
+                        {isSelected && (
+                          <span style={{
+                            position: 'absolute', top: '3px', right: '3px',
+                            background: '#1E1814', color: '#F7F4EF',
+                            width: '18px', height: '18px', borderRadius: '50%',
+                            fontSize: '11px', lineHeight: '18px', textAlign: 'center',
+                          }}>✓</span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+            <div style={{ padding: '12px 20px', borderTop: '1px solid #E5E1DC', textAlign: 'right' }}>
+              <button
+                type="button"
+                onClick={() => setPickerOpen(false)}
+                style={{
+                  fontSize: '12px', padding: '8px 20px',
+                  border: '1px solid #1E1814', background: '#1E1814', color: '#F7F4EF', cursor: 'pointer',
+                }}
+              >
+                選択を確定（{selected.length}枚）
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }

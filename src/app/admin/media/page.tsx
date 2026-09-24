@@ -1,7 +1,7 @@
 export const dynamic = 'force-dynamic'
 
 import Link from 'next/link'
-import { listMediaImages } from './actions'
+import { listMediaImages, listUsedImageUrls } from './actions'
 import { MediaUploadForm } from './MediaUploadForm'
 
 export default async function AdminMediaPage() {
@@ -13,6 +13,8 @@ export default async function AdminMediaPage() {
   } catch (err) {
     loadError = err instanceof Error ? err.message : '画像一覧の取得に失敗しました。'
   }
+
+  const usedUrls = new Set(await listUsedImageUrls())
 
   return (
     <div style={{ backgroundColor: '#F7F4EF', minHeight: '100vh', fontFamily: "'Noto Sans JP', sans-serif", fontWeight: 300 }}>
@@ -35,7 +37,8 @@ export default async function AdminMediaPage() {
             Media Library / 画像ライブラリ
           </h2>
           <p style={{ fontSize: '12px', color: '#8B7B6A' }}>
-            ここでアップロードした画像は、商品追加フォームの「画像ライブラリから選択」で使えます。
+            ここでアップロードした画像は、商品追加フォーム・ギャラリー写真追加フォームの
+            「画像ライブラリから選択」で使えます。
           </p>
         </div>
 
@@ -61,13 +64,22 @@ export default async function AdminMediaPage() {
             ) : (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: '10px' }}>
                 {images.map((img) => (
-                  <div key={img.key} style={{ border: '1px solid #E5E1DC', background: '#EEEBE5' }}>
+                  <div key={img.key} style={{ position: 'relative', border: '1px solid #E5E1DC', background: '#EEEBE5' }}>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={img.url}
                       alt={img.key}
                       style={{ width: '100%', aspectRatio: '1', objectFit: 'contain', display: 'block' }}
                     />
+                    {usedUrls.has(img.url) && (
+                      <span style={{
+                        position: 'absolute', top: '4px', left: '4px',
+                        fontSize: '9px', letterSpacing: '0.04em',
+                        padding: '2px 6px', background: 'rgba(30,24,20,0.75)', color: '#F7F4EF',
+                      }}>
+                        使用中
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
