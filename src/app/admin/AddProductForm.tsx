@@ -67,7 +67,7 @@ export function AddProductForm() {
       <p style={{ fontSize: '11px', color: '#8B7B6A', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: '16px' }}>
         新規商品を追加
       </p>
-      <form ref={formRef} action={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+      <form ref={formRef} action={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
         <input name="name" placeholder="商品名" required style={inputStyle} />
         <select name="category" required style={inputStyle}>
           <option value="">カテゴリを選択</option>
@@ -76,7 +76,7 @@ export function AddProductForm() {
           <option value="goods">グッズ</option>
           <option value="apparel">アパレル</option>
         </select>
-        <input name="price" type="number" placeholder="価格（円）" required style={inputStyle} />
+        <input name="price" type="number" min="0" placeholder="価格（円）" required style={inputStyle} />
 
         <div style={{ gridColumn: '1 / -1', display: 'grid', gap: '8px' }}>
           <p style={{ fontSize: '11px', color: '#8B7B6A' }}>商品画像（アップロード、またはURLを直接入力）</p>

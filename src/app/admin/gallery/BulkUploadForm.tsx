@@ -153,7 +153,7 @@ export function BulkUploadForm() {
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '16px' }}>
           <select value={tag} onChange={e => setTag(e.target.value)} style={inputStyle}>
             <option value="">タグなし（全写真共通）</option>
             <option value="沖縄">沖縄</option>

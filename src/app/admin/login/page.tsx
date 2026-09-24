@@ -59,8 +59,10 @@ function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="admin@tidagrain.com"
+                autoComplete="email"
+                autoFocus
                 required
-                style={{ border: '1px solid #E5E1DC', background: 'transparent', padding: '12px 14px', fontSize: '13px', outline: 'none', color: '#1E1814', width: '100%' }}
+                style={{ border: '1px solid #E5E1DC', background: 'transparent', padding: '12px 14px', fontSize: '13px', outline: 'none', color: '#1E1814', width: '100%', boxSizing: 'border-box' }}
               />
             </div>
 
@@ -72,8 +74,9 @@ function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
+                autoComplete="current-password"
                 required
-                style={{ border: '1px solid #E5E1DC', background: 'transparent', padding: '12px 14px', fontSize: '13px', outline: 'none', color: '#1E1814', width: '100%' }}
+                style={{ border: '1px solid #E5E1DC', background: 'transparent', padding: '12px 14px', fontSize: '13px', outline: 'none', color: '#1E1814', width: '100%', boxSizing: 'border-box' }}
               />
             </div>
 

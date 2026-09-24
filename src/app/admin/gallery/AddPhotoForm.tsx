@@ -24,7 +24,7 @@ export function AddPhotoForm() {
         Photos / 写真追加
       </h2>
       <div style={{ border: '1px solid #E5E1DC', padding: '28px 24px' }}>
-        <form ref={formRef} action={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+        <form ref={formRef} action={handleSubmit} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
           <input name="title" placeholder="タイトル（必須）" required style={inputStyle} />
           <input name="image_url" placeholder="画像URL（必須）" required style={inputStyle} />
           <select name="tag" style={inputStyle}>

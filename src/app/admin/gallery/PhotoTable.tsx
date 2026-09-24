@@ -34,7 +34,8 @@ export function PhotoTable({ photos }: { photos: Photo[] }) {
 
   return (
     <>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+      <div style={{ overflowX: 'auto' }}>
+      <table style={{ width: '100%', minWidth: '640px', borderCollapse: 'collapse', fontSize: '13px' }}>
         <thead>
           <tr style={{ borderBottom: '1px solid #E5E1DC', backgroundColor: 'rgba(0,0,0,0.02)' }}>
             <th style={thStyle}>サムネ</th>
@@ -91,10 +92,13 @@ export function PhotoTable({ photos }: { photos: Photo[] }) {
                   </button>
                   <form action={deletePhoto}>
                     <input type="hidden" name="id" value={photo.id} />
-                    <SubmitButton style={{
-                      fontSize: '11px', padding: '4px 12px',
-                      border: '1px solid #E5E1DC', background: 'transparent', color: '#c0392b',
-                    }}>
+                    <SubmitButton
+                      confirmMessage={`「${photo.title}」を削除します。この操作は取り消せません。よろしいですか？`}
+                      style={{
+                        fontSize: '11px', padding: '4px 12px',
+                        border: '1px solid #E5E1DC', background: 'transparent', color: '#c0392b',
+                      }}
+                    >
                       削除
                     </SubmitButton>
                   </form>
@@ -104,6 +108,7 @@ export function PhotoTable({ photos }: { photos: Photo[] }) {
           ))}
         </tbody>
       </table>
+      </div>
 
       {editingPhoto && (
         <div
@@ -151,7 +156,7 @@ export function PhotoTable({ photos }: { photos: Photo[] }) {
               <input name="title" defaultValue={editingPhoto.title} placeholder="タイトル（必須）" required style={inputStyle} />
               <input name="image_url" defaultValue={editingPhoto.image_url} placeholder="画像URL（必須）" required style={inputStyle} />
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '12px' }}>
                 <select name="tag" defaultValue={editingPhoto.tag ?? ''} style={inputStyle}>
                   <option value="">タグなし</option>
                   <option value="沖縄">沖縄</option>
