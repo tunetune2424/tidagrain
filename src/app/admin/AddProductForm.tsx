@@ -4,8 +4,7 @@
 // 送信完了後に formRef.current?.reset() でフォームをクリアするため Client Component にしている
 
 import { useRef, useState } from 'react'
-import { createSupabaseBrowserClient } from '@/lib/supabase-client'
-import { addProduct } from './actions'
+import { addProduct, uploadProductImage } from './actions'
 import { SubmitButton } from './SubmitButton'
 
 const inputStyle: React.CSSProperties = {
@@ -14,11 +13,7 @@ const inputStyle: React.CSSProperties = {
   color: '#1E1814', outline: 'none', width: '100%', boxSizing: 'border-box',
 }
 
-// 商品画像用のバケット名。
-// Supabase Storage に未作成の場合は事前にバケットを作成しておく必要がある：
-//   1. Supabase ダッシュボード → Storage → New bucket → 名前「products」で作成（Public bucket を有効化）
-//   2. または SQL: select storage.create_bucket('products', public => true);
-const STORAGE_BUCKET = 'products'
+// 商品画像はCloudflare R2に保存する（'products/' プレフィックス、詳細は src/lib/r2.ts 参照）
 
 export function AddProductForm() {
   const formRef = useRef<HTMLFormElement>(null)
@@ -36,25 +31,20 @@ export function AddProductForm() {
     setUploadError(null)
 
     try {
-      const supabase = createSupabaseBrowserClient()
-      const ext = file.name.split('.').pop() ?? 'jpg'
-      const path = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+      const fd = new FormData()
+      fd.set('file', file)
+      const result = await uploadProductImage(fd)
 
-      const { error: uploadErr } = await supabase.storage
-        .from(STORAGE_BUCKET)
-        .upload(path, file, { upsert: false })
+      if ('error' in result) {
+        setUploadError(result.error)
+        return
+      }
 
-      if (uploadErr) throw uploadErr
-
-      const { data: { publicUrl } } = supabase.storage
-        .from(STORAGE_BUCKET)
-        .getPublicUrl(path)
-
-      setImageUrl(publicUrl)
-      setPreviewUrl(publicUrl)
+      setImageUrl(result.url)
+      setPreviewUrl(result.url)
     } catch (err) {
       console.error(err)
-      setUploadError('アップロードに失敗しました。Storageのバケット・ポリシー設定を確認してください。')
+      setUploadError('アップロードに失敗しました。R2の設定（.env.localの環境変数）を確認してください。')
     } finally {
       setUploading(false)
     }

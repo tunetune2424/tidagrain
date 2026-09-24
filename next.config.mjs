@@ -6,6 +6,8 @@ const nextConfig = {
     remotePatterns: [
       { hostname: 'i.imgur.com' },
       { hostname: 'images.unsplash.com' },
+      { hostname: '*.r2.dev' }, // Cloudflare R2の公開URL（pub-xxxxxxxx.r2.dev）
+      // 独自ドメインでR2を配信する場合は、そのホスト名をここに追加する
     ],
   },
 }

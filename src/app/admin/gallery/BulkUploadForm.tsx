@@ -1,10 +1,9 @@
 'use client'
 
 import { useState, useRef, useCallback } from 'react'
-import { createSupabaseBrowserClient } from '@/lib/supabase-client'
-import { bulkAddPhotos } from './actions'
+import { bulkAddPhotos, uploadPhotoImage } from './actions'
 
-const STORAGE_BUCKET = 'photos'
+// 写真はCloudflare R2に保存する（'photos/' プレフィックス、詳細は src/lib/r2.ts 参照）
 
 const inputStyle: React.CSSProperties = {
   fontSize: '13px', padding: '8px 12px',
@@ -53,29 +52,23 @@ export function BulkUploadForm() {
     setUploading(true)
     setProgress(0)
 
-    const supabase = createSupabaseBrowserClient()
-
     try {
       const photoData: Parameters<typeof bulkAddPhotos>[0] = []
 
       for (let i = 0; i < previews.length; i++) {
         const { file } = previews[i]
-        const ext = file.name.split('.').pop() ?? 'jpg'
-        const path = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
 
-        const { error: uploadError } = await supabase.storage
-          .from(STORAGE_BUCKET)
-          .upload(path, file, { upsert: false })
+        const fd = new FormData()
+        fd.set('file', file)
+        const result = await uploadPhotoImage(fd)
 
-        if (uploadError) throw uploadError
-
-        const { data: { publicUrl } } = supabase.storage
-          .from(STORAGE_BUCKET)
-          .getPublicUrl(path)
+        if ('error' in result) {
+          throw new Error(result.error)
+        }
 
         photoData.push({
           title: file.name.replace(/\.[^.]+$/, ''),
-          image_url: publicUrl,
+          image_url: result.url,
           tag: tag || null,
           location: location || null,
           camera: camera || null,
@@ -94,7 +87,8 @@ export function BulkUploadForm() {
       alert(`${photoData.length}枚の写真を登録しました（すべて非公開状態）`)
     } catch (err) {
       console.error(err)
-      alert('アップロードに失敗しました。Storageのポリシー設定を確認してください。')
+      const message = err instanceof Error ? err.message : 'アップロードに失敗しました。R2の設定（.env.localの環境変数）を確認してください。'
+      alert(message)
     } finally {
       setUploading(false)
       setProgress(0)

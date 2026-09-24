@@ -2,6 +2,37 @@
 
 import { revalidatePath } from 'next/cache'
 import { supabaseAdmin } from '@/lib/supabase'
+import { uploadFileToR2, R2UploadError } from '@/lib/r2'
+
+// 写真をCloudflare R2にアップロードし、公開URLを返す
+// 失敗時は { error: string } を返す（例外を握りつぶして成功扱いにはしない）
+export async function uploadPhotoImage(
+  formData: FormData
+): Promise<{ url: string } | { error: string }> {
+  const file = formData.get('file') as File | null
+  if (!file || file.size === 0) {
+    return { error: 'ファイルが選択されていません。' }
+  }
+
+  try {
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = Buffer.from(arrayBuffer)
+    const ext = file.name.split('.').pop() ?? 'jpg'
+    const key = `photos/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`
+
+    const url = await uploadFileToR2({
+      buffer,
+      key,
+      contentType: file.type || 'application/octet-stream',
+    })
+
+    return { url }
+  } catch (err) {
+    console.error(err)
+    const message = err instanceof R2UploadError ? err.message : 'アップロードに失敗しました。'
+    return { error: message }
+  }
+}
 
 export async function addPhoto(formData: FormData) {
   const title = formData.get('title') as string
